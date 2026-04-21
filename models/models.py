@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from models.enums import QuestDifficuilty, QuestLength, QuestStatus, QuestType
+from models.enums import QuestDifficulty, QuestLength, QuestStatus, QuestType
 from datetime import datetime
 
 @dataclass
@@ -13,10 +13,12 @@ class Quest:
     id: int | None
     title: str
     description: str
-    difficulty: QuestDifficuilty
+    difficulty: QuestDifficulty
     length: QuestLength
     quest_type: QuestType
     status: QuestStatus = QuestStatus.ACTIVE
     times_completed: int=0
-    created_on: datetime
-    completed_on: datetime = field()
+    created_on: datetime = field(default_factory=datetime.now)
+    completed_on: datetime | None = None
+
+# Dataclass for Activity Log Entries
