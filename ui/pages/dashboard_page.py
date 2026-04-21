@@ -1,4 +1,4 @@
-from PySide6.QTWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 class DashboardPage(QWidget):
     def __init__(self, main_window):
@@ -11,3 +11,7 @@ class DashboardPage(QWidget):
         self.title_label = QLabel("Dashboard:")
     
         layout.addWidget(self.title_label)
+
+    def refresh(self) -> None:
+        # Placeholder for any future dynamic content on the dashboard
+        pass
