@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
+from logic.app_logic import AppLogic
 from ui.sidebar import Sidebar
 
 from ui.pages.dashboard_page import DashboardPage
@@ -8,12 +9,14 @@ from ui.pages.rewards_page import RewardsPage
 from ui.pages.activity_log_page import ActivityLogPage
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app_logic: AppLogic):
         super().__init__()
+        
+        self.app_logic = app_logic
 
         # Define the main window properties
         self.setWindowTitle("Questly")
-        self.resize(800, 600)
+        self.resize(600, 400)
         
         # Add sidebar widget
         self.sidebar = Sidebar()
@@ -21,11 +24,11 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
 
         # add pages to MainWindow
-        self.dashboard_page = DashboardPage(self)
-        self.quests_page = QuestsPage(self)
-        self.settings_page = SettingsPage(self)
-        self.rewards_page = RewardsPage(self)
-        self.activity_log_page = ActivityLogPage(self)
+        self.dashboard_page = DashboardPage(self.app_logic, self)
+        self.quests_page = QuestsPage(self.app_logic, self)
+        self.settings_page = SettingsPage(self.app_logic, self)
+        self.rewards_page = RewardsPage(self.app_logic, self)
+        self.activity_log_page = ActivityLogPage(self.app_logic, self)
 
         # Add pages to the stack
         self.stack.addWidget(self.dashboard_page)
@@ -46,18 +49,39 @@ class MainWindow(QMainWindow):
 
         self.refresh_all_pages()
 
+    def _connect_sidebar(self) -> None:
+        self.sidebar.dashboard_button.clicked.connect(lambda: self.switch_page(self.dashboard_page))
+        self.sidebar.quests_button.clicked.connect(lambda: self.switch_page(self.quests_page))
+        self.sidebar.rewards_button.clicked.connect(lambda: self.switch_page(self.rewards_page))
+        self.sidebar.activity_log_button.clicked.connect(lambda: self.switch_page(self.activity_log_page))
+        self.sidebar.settings_button.clicked.connect(lambda: self.switch_page(self.settings_page))
 
-    def _connect_sidebar(self)-> None:
-        self.sidebar.dashboard_button.clicked.connect(lambda: self.switch_page(0))
-        self.sidebar.quests_button.clicked.connect(lambda: self.switch_page(1))
-        self.sidebar.rewards_button.clicked.connect(lambda: self.switch_page(2))
-        self.sidebar.activity_log_button.clicked.connect(lambda: self.switch_page(3))
-        self.sidebar.settings_button.clicked.connect(lambda: self.switch_page(4))
+    def switch_page(self, page: QWidget) -> None:
+        self.stack.setCurrentWidget(page)
 
-    def switch_page(self, index: int) -> None:
-        self.stack.setCurrentIndex(index)
+        if hasattr(page, "refresh"):
+            page.refresh()
+
+    def refresh_sidebar(self) -> None:
+        player = self.app_logic.get_player()
+        self.sidebar.update_player_display(player)
 
     def refresh_all_pages(self) -> None:
-        self.dashboard_page.refresh()
+        self.refresh_sidebar()
 
-# Create method to refresh all pages when data changes
+        for page in [
+            self.dashboard_page,
+            self.quests_page,
+            self.activity_log_page,
+            self.rewards_page,
+            self.settings_page,
+        ]:
+            if hasattr(page, "refresh"):
+                page.refresh()
+
+    def refresh_after_data_change(self) -> None:
+        self.refresh_sidebar()
+        self.dashboard_page.refresh()
+        self.quests_page.refresh()
+        self.activity_log_page.refresh()
+        self.rewards_page.refresh()

@@ -4,9 +4,11 @@ from datetime import datetime
 
 @dataclass
 class Player:
+    id: int | None
+    level: int
     name: str
-    exp: int
     gold: int
+    experience: int
 
 @dataclass
 class Quest:
@@ -18,7 +20,14 @@ class Quest:
     quest_type: QuestType
     status: QuestStatus = QuestStatus.ACTIVE
     times_completed: int=0
-    created_on: datetime = field(default_factory=datetime.now)
-    completed_on: datetime | None = None
+    created_at: datetime = field(default_factory=datetime.now)
+    completed_at: datetime | None = None
 
-# Dataclass for Activity Log Entries
+@dataclass
+class ActivityLogEntry:
+    id: int | None
+    quest_id: int
+    quest_title: str
+    reward_gold: int
+    reward_experience: int
+    completed_at: datetime = field(default_factory=datetime.now)
