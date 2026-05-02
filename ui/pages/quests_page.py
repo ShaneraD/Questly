@@ -230,12 +230,18 @@ class QuestsPage(QWidget):
             QMessageBox.warning(self, "No Quest Selected", "Please select a quest first.")
             return
 
+        if self.selected_quest.id is None:
+            QMessageBox.warning(self, "Quest Error", "Selected quest does not have a valid ID.")
+            return
+
         try:
-            updated_quest, updated_player, reward_gold, reward_experience = self.app_logic.complete_quest(self.selected_quest.id)
+            updated_quest, updated_player, reward_gold, reward_experience = (
+                self.app_logic.complete_quest(self.selected_quest.id)
+            )
         except ValueError as error:
             QMessageBox.warning(self, "Quest Completion Error", str(error))
             self.main_window.refresh_after_data_change()
-        return
+            return
 
         self.selected_quest = updated_quest
         self.main_window.refresh_after_data_change()
